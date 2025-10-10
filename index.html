@@ -10,6 +10,9 @@
 <div id="app">
   <div id="feed"></div>
 
+  <!-- Tambahkan di dalam <body>, setelah #app -->
+<button id="floatingBtn">💬</button>
+
   <div id="inputArea">
     <!-- thumbnail -->
     <div id="thumbnailContainer"></div>
@@ -76,6 +79,32 @@ brushColor.addEventListener("input", () => {
   colorPreview.style.background = currentColor;
   updateCursor();
 });
+
+// Mobile detection
+function isMobile() {
+  return /Mobi|Android/i.test(navigator.userAgent);
+}
+
+const inputArea = document.getElementById("inputArea");
+const floatingBtn = document.getElementById("floatingBtn");
+
+if (isMobile()) {
+  // hide inputArea secara default
+  inputArea.style.display = "none";
+  // tampilkan floating button
+  floatingBtn.style.display = "block";
+
+  floatingBtn.addEventListener("click", () => {
+    if (inputArea.style.display === "none") {
+      inputArea.style.display = "block";
+      floatingBtn.textContent = "❌"; // tombol close
+    } else {
+      inputArea.style.display = "none";
+      floatingBtn.textContent = "💬"; // tombol chat
+    }
+  });
+}
+
 
 // brush size dynamic 1-20
 sizeTooltip.innerHTML = "";
