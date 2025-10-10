@@ -27,6 +27,24 @@ html, body {
     padding: 15px;
 }
 
+/* Button Post */
+#postBtn {
+  background-color: #444; /* warna normal */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#postBtn:disabled {
+  background-color: #44444469;  /* warna tombol disable */
+  color: #666;             /* teks lebih redup */
+  cursor: not-allowed;     /* cursor khas disable */
+}
+
+
 /* Bubble post */
 .bubble {
     background: #2c2c2c;
