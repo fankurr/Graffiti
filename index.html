@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Graffiti</title>
+<title>Graffity</title>
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
@@ -40,9 +40,10 @@
     <input type="text" id="input2" placeholder="Tag" required>
 
     <!-- tombol -->
-    <button onclick="post()">Post</button>
-    <button id="drawBtn" onclick="toggleDrawing()">✏️ Draw</button>
-    <button onclick="document.getElementById('uploadImg').click()">🖼️ Upload</button>
+     <button id="postBtn" onclick="post()" disabled>Post</button>
+     <button id="drawBtn" onclick="toggleDrawing()">✏️ Draw</button>
+     <button onclick="document.getElementById('uploadImg').click()">🖼️ Upload</button>
+
   </div>
 </div>
 
@@ -275,9 +276,47 @@ function renderThumbnails() {
   });
 }
 
+// fungsi helper format timestamp ala Twitter
+function formatTimeAgo(date) {
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000); // selisih dalam detik
 
+  if (diff < 60) return `${diff}s`;          // detik
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`; // menit
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`; // jam
+  if (diff < 172800) return "Yesterday";    // kemarin
+  return date.toLocaleDateString();         // format tanggal
+}
 
-// post
+const postBtn = document.getElementById("postBtn");
+
+// cek apakah canvas ada isinya
+function isCanvasEmpty() {
+  const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  return !pixels.some(channel => channel !== 0); // true kalau kosong
+}
+
+function checkPostButton() {
+  const val1 = input1.value.trim();
+  const val2 = input2.value.trim();
+  const hasUpload = uploadedImages.length > 0;
+  const hasDrawing = !isCanvasEmpty();
+
+  // input2 wajib, lalu minimal ada isi lain
+  if (val2 && (val1 || hasUpload || hasDrawing)) {
+    postBtn.disabled = false;
+  } else {
+    postBtn.disabled = true;
+  }
+}
+
+// listener
+input1.addEventListener("input", checkPostButton);
+input2.addEventListener("input", checkPostButton);
+uploadImg.addEventListener("change", checkPostButton);
+canvas.addEventListener("pointerup", checkPostButton);
+
+// POST
 function post() {
   let val1 = input1.value.trim();
   const val2 = input2.value.trim();
@@ -307,8 +346,8 @@ function post() {
       img.style.maxWidth = "100%";
       img.style.borderRadius = "8px";
       img.style.marginBottom = "6px";
-      img.style.background = "#fff"; // background sesuai kanvas
-      img.style.padding = "4px";     // padding agar ada jarak dari tepi
+      img.style.background = "#fff"; 
+      img.style.padding = "4px";     
       img.style.display = "block";
       bubble.appendChild(img);
       clearCanvas();
@@ -321,25 +360,48 @@ function post() {
       bubble.appendChild(out1);
     }
 
+    // baris bawah (output2 + timestamp)
     if (val2) {
+      const bottomRow = document.createElement("div");
+      bottomRow.style.display = "flex";
+      bottomRow.style.justifyContent = "space-between";
+      bottomRow.style.alignItems = "center";
+      bottomRow.style.fontSize = "0.85em";
+      bottomRow.style.color = "#777";
+      bottomRow.style.marginTop = "4px";
+
       const out2 = document.createElement("div");
       out2.className = "output2";
       out2.textContent = "~ " + val2;
-      bubble.appendChild(out2);
+
+      const time = document.createElement("div");
+      time.className = "timestamp";
+      time.textContent = formatTimeAgo(new Date());
+
+      bottomRow.appendChild(out2);
+      bottomRow.appendChild(time);
+      bubble.appendChild(bottomRow);
     }
 
     feed.appendChild(bubble);
     feed.scrollTop = feed.scrollHeight;
+
+    // reset form
     input1.value = "";
     input2.value = "";
-    input1.focus();  // kursor tetap di input1
+    input1.focus();
     input1.style.display = "block";
     thumbnailContainer.style.display = "flex";
     canvasWrapper.style.display = "none";
     useDrawing = false;
     drawBtn.textContent = "✏️ Draw";
+
+    // update tombol post (disable lagi)
+    checkPostButton();
   }
 }
+
+
 
 </script>
 </body>
